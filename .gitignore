@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Generated audio exports
+exports/*
+!exports/.gitkeep
