@@ -17,3 +17,15 @@ Dedicated single-instrument generation:
 Single-instrument with extra style descriptors:
 
 `uv run python generate_single_instrument.py trumpet 25 --style "warm jazz tone, intimate room"`
+
+## Generate Walking Bass MIDI (Loop for REAPER)
+
+Create a loop-ready walking bass MIDI file:
+
+`uv run python generate_walking_bass.py --key C --bpm 120 --bars 12`
+
+Example in a minor key:
+
+`uv run python generate_walking_bass.py --key Amin --bpm 100 --bars 8`
+
+The script writes `.mid` files into `exports/` by default. In REAPER, drag the generated MIDI onto a bass instrument track and enable item looping (or duplicate the item) to repeat it.
