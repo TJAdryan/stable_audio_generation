@@ -159,6 +159,8 @@ def write_walking_bass_midi(
     bars: int = 12,
     velocity: int = 88,
     channel: int = 0,
+    add_drums: bool = True,
+    drum_velocity: int = 82,
 ):
     root, quality = parse_key(key)
     if bars < 1:
@@ -187,6 +189,54 @@ def write_walking_bass_midi(
 
     track.append(MetaMessage("end_of_track", time=0))
 
+    if add_drums:
+        drum_track = MidiTrack()
+        midi.tracks.append(drum_track)
+
+        drum_track.append(MetaMessage("track_name", name="Drums", time=0))
+
+        kick = 36
+        snare = 38
+        closed_hat = 42
+        drum_channel = 9
+        eighth_note_ticks = ticks_per_beat // 2
+
+        for _ in range(bars):
+            # 8th-note hi-hat; kick on 1 and 3; snare on 2 and 4.
+            for step in range(8):
+                events: list[tuple[int, int]] = [(closed_hat, max(1, drum_velocity - 14))]
+
+                if step in (0, 4):
+                    events.append((kick, drum_velocity))
+                if step in (2, 6):
+                    events.append((snare, max(1, drum_velocity - 4)))
+
+                for note, vel in events:
+                    drum_track.append(
+                        Message(
+                            "note_on",
+                            note=note,
+                            velocity=vel,
+                            channel=drum_channel,
+                            time=0,
+                        )
+                    )
+
+                first = True
+                for note, _ in events:
+                    drum_track.append(
+                        Message(
+                            "note_off",
+                            note=note,
+                            velocity=0,
+                            channel=drum_channel,
+                            time=eighth_note_ticks if first else 0,
+                        )
+                    )
+                    first = False
+
+        drum_track.append(MetaMessage("end_of_track", time=0))
+
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     midi.save(output_path)
 
@@ -198,6 +248,8 @@ def main():
     parser.add_argument("--bars", type=int, default=12, help="Number of bars to generate")
     parser.add_argument("--velocity", type=int, default=88, help="MIDI velocity (1-127)")
     parser.add_argument("--channel", type=int, default=0, help="MIDI channel (0-15)")
+    parser.add_argument("--no-drums", action="store_true", help="Disable the simple drum accompaniment track")
+    parser.add_argument("--drum-velocity", type=int, default=82, help="Drum MIDI velocity (1-127)")
     parser.add_argument(
         "--output",
         type=str,
@@ -221,6 +273,8 @@ def main():
         bars=args.bars,
         velocity=args.velocity,
         channel=args.channel,
+        add_drums=not args.no_drums,
+        drum_velocity=args.drum_velocity,
     )
     print(f"DONE: {output_path}")
 

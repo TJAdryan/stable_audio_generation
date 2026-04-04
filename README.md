@@ -26,8 +26,16 @@ Create a loop-ready walking bass MIDI file:
 
 `uv run python generate_walking_bass.py --key C --bpm 120 --bars 12`
 
+The MIDI now includes a simple drum groove track (kick/snare/hi-hat) by default.
+
 Example in a minor key:
 
 `uv run python generate_walking_bass.py --key Amin --bpm 100 --bars 8`
+
+Optional drum controls:
+
+`uv run python generate_walking_bass.py --key C --bars 12 --drum-velocity 70`
+
+`uv run python generate_walking_bass.py --key C --bars 12 --no-drums`
 
 The script writes `.mid` files into `exports/` by default. In REAPER, drag the generated MIDI onto a bass instrument track and enable item looping (or duplicate the item) to repeat it.
